@@ -1,4 +1,5 @@
 const Order = require("../models/Orders");
+const User = require('../models/User');
 
 module.exports.getAllOrders = async (req, res) => {
   try {
@@ -13,19 +14,23 @@ module.exports.getAllOrders = async (req, res) => {
 
 module.exports.addOrder = async (req, res) => {
 
+  const { items, totalAmount, user } = req.body;
+  
+  const user_ = await User.findOne({ username: user });
     try {
-        const { items, totalAmount, user } = req.body;
-
+      if (!user_) {
+        return res.status(400).json({ message: 'User not found' });
+    }
         const order = new Order({
             items,
             totalAmount,
-            user,
+            user: user_._id,
         });
 
         const savedOrder = await order.save();
         res.json(savedOrder);
         console.log("Added Successfully...");
-        console.log(savedOrder);
+    
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Error creating order', error: error.message });

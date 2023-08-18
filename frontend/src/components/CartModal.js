@@ -1,15 +1,54 @@
 import React from 'react';
+import { useState } from 'react';
 import Modal from 'react-modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useCartContext } from '../Context/CartContext';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import 'react-toastify/dist/ReactToastify.css';
 
 Modal.setAppElement('#root'); // Set the root element for the modal
 
 const CartModal = ({ onClose, onQuantityChange, onRemoveItem }) => {
-  const { cart } = useCartContext();
+  const { cart ,loggedInUsername,setCart } = useCartContext();
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const getTotalPrice = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!loggedInUsername) {
+      toast.error('You need to be logged in to place an order.');
+      return;
+    }
+
+    setIsPlacingOrder(true);
+
+    try {
+      const items = cart.map(item => ({
+        product: item._id,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+      const totalAmount = getTotalPrice();
+
+      const response = await axios.post('http://localhost:5000/orders/addOrder', {
+        items,
+        totalAmount,
+        user: loggedInUsername, // Send the logged-in username as UserId
+      });
+
+      if (response.data) {
+        toast.success('Order Placed Successfully');
+        setCart([]);
+        setIsPlacingOrder(false); 
+        onClose(); // Close the modal after placing the order
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Error placing order');
+    } 
   };
 
   return (
@@ -63,6 +102,14 @@ const CartModal = ({ onClose, onQuantityChange, onRemoveItem }) => {
               </ul>
 
               <p className="fw-bold">Total Price: ${getTotalPrice()}</p>
+              <button
+                className="btn btn-danger position-absolute bottom-0 start-0 m-3"
+                onClick={handlePlaceOrder}
+                disabled={isPlacingOrder}
+              >
+                {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
+              </button>
+
             </>
           )}
 
