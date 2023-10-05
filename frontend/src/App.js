@@ -10,6 +10,9 @@ import Contact from './pages/Contact';
 import LoginPage from './pages/LoginPage'
 import Root from './pages/Root';
 import SignupPage from './pages/SignupPage';
+import Admin from './pages/Admin';
+
+
 
 function App() {
   const {  loggedInUsername } = useCartContext();
@@ -42,14 +45,20 @@ const router = createBrowserRouter([
           element: <About/>
     
         },
-        {
+        { 
           path: "/contact",
           element: <Contact/>
     
         },
+        
       ]
 
-    }
+    },
+    {
+      path: "/admin",
+      element: <Admin/>
+      
+    },
 
 ]);
 

@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 Modal.setAppElement('#root'); // Set the root element for the modal
 
 const CartModal = ({ onClose, onQuantityChange, onRemoveItem }) => {
-  const { cart ,loggedInUsername,setCart } = useCartContext();
+  const { cart, loggedInUsername, setCart } = useCartContext();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const getTotalPrice = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -42,13 +42,13 @@ const CartModal = ({ onClose, onQuantityChange, onRemoveItem }) => {
       if (response.data) {
         toast.success('Order Placed Successfully');
         setCart([]);
-        setIsPlacingOrder(false); 
+        setIsPlacingOrder(false);
         onClose(); // Close the modal after placing the order
       }
     } catch (error) {
       console.error(error);
       toast.error('Error placing order');
-    } 
+    }
   };
 
   return (
@@ -77,10 +77,24 @@ const CartModal = ({ onClose, onQuantityChange, onRemoveItem }) => {
             <>
               <ul className="list-group mb-3">
                 {cart.map((item) => (
-                  <li key={item._id} className="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{item.title}</span>
+                  <li
+                    key={item._id}
+                    className="list-group-item d-flex justify-content-between align-items-center"
+                  >
+                    <div className="d-flex flex-column">
+                      <span className="mb-1">{item.title}</span>
+                      <span className="mb-1">
+                        Quantity: {item.quantity} | Price:{' '}
+                        ${item.price * item.quantity}
+                      </span>
+                    </div>
                     <div className="d-flex align-items-center">
-                      <button className="btn btn-outline-secondary btn-sm me-2" onClick={() => onQuantityChange(item._id, -1)}>-</button>
+                      <button
+                        className="btn btn-outline-secondary btn-sm me-2"
+                        onClick={() => onQuantityChange(item._id, -1)}
+                      >
+                        -
+                      </button>
                       <span className="me-2">{item.quantity}</span>
                       <button
                         className="btn btn-outline-secondary btn-sm"
@@ -96,7 +110,6 @@ const CartModal = ({ onClose, onQuantityChange, onRemoveItem }) => {
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     </div>
-                    <span>${item.price * item.quantity}</span>
                   </li>
                 ))}
               </ul>
@@ -109,10 +122,8 @@ const CartModal = ({ onClose, onQuantityChange, onRemoveItem }) => {
               >
                 {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
               </button>
-
             </>
           )}
-
         </div>
 
         <button className="btn btn-secondary position-absolute bottom-0 end-0 m-3" onClick={onClose}>
